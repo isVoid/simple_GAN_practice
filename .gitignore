@@ -1,0 +1,5 @@
+mnist/*.*
+output/*.*
+model/*.*
+log/*.*
+__pycache__
