@@ -71,7 +71,7 @@ class GAN(object):
         with tf.device("/gpu:0"):
 
             z, X, Gz, DGz, Dx = self.model()
-            
+
             if USE_TENSORBOARD:
                 tf.summary.image("Generated digits", gen_z, 5)
                 gen_z = tf.reshape(Gz, shape = [-1, 28, 28, 1])
@@ -135,7 +135,7 @@ def main(args):
     param = {
         "learning_rate" : 1e-5,
         "epochs" : 50000,
-        "mini_batch_size" : 128,
+        "mini_batch_size" : 64,
         "k" : 1
     }
     g = GAN(param)
