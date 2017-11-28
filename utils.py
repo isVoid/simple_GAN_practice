@@ -41,8 +41,7 @@ def random_mini_batches(data, mini_batch_size=200, seed = 2):
     return minibatches
 
 def gen_to_img(gen):
-    print ("gen shape", gen.shape)
-    print ("gen type", gen.dtype)
+    print ("Writing Generated image to disk")
     intgen = (gen*255).astype("uint8").reshape([-1, 28, 28])
     x = y = 0
     w = np.ceil(np.sqrt(intgen.shape[0])).astype(int)

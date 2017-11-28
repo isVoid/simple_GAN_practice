@@ -12,7 +12,7 @@ folder structure:
 
   * mnist------Where mnist dataset is placed
 
-  * model------#Where model and checkpoint file is saved
+  * model------Where model and checkpoint file is saved
 
   * output-----Where generated images from each epoch is saved
 
