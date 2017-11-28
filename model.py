@@ -134,14 +134,14 @@ def main(args):
     mnist = input_data.read_data_sets("mnist/", one_hot=True)
     param = {
         "learning_rate" : 1e-5,
-        "epochs" : 50000,
+        "epochs" : 100,
         "mini_batch_size" : 64,
         "k" : 1
     }
     g = GAN(param)
     mnist2d = mnist.test.images.reshape((-1, 28, 28, 1))
     mnist2d = norm_transform(mnist2d)
-    print (mnist2d.shape)
+    print ("mnist2d shape", mnist2d.shape)
     g.train(mnist2d)
     # g.train(mnist.train.images)
 

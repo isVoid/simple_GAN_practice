@@ -44,18 +44,17 @@ def gen_to_img(gen):
     print ("gen shape", gen.shape)
     print ("gen type", gen.dtype)
     intgen = (gen*255).astype("uint8").reshape([-1, 28, 28])
-    # x = y = 0
-    # w = np.ceil(np.sqrt(intgen.shape[0])).astype(int)
-    # img = np.zeros((w * 28, w * 28))
-    # for i in range(gen.shape[0]):
-    #     img[x:x+28, y:y+28] = intgen[i]
-    #     if (x + 28 < img.shape[0]):
-    #         x+=28
-    #     else:
-    #         y+=28
-    #         x=0
-    img = intgen[0]
-    # img = img.astype("uint8")
+    x = y = 0
+    w = np.ceil(np.sqrt(intgen.shape[0])).astype(int)
+    img = np.zeros((w * 28, w * 28))
+    for i in range(gen.shape[0]):
+        img[x:x+28, y:y+28] = intgen[i]
+        if (x + 28 < img.shape[0]):
+            x+=28
+        else:
+            y+=28
+            x=0
+    img = img.astype("uint8")
     return img
 
 def norm_transform(img):
