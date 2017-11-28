@@ -6,15 +6,15 @@ require: see requirements.txt
 
 folder structure:
 
-* GAN
+* GAN/
 
-  * log--------Where tensorboard log is saved
+  * log/--------Where tensorboard log is saved
 
-  * mnist------Where mnist dataset is placed
+  * mnist/------Where mnist dataset is placed
 
-  * model------Where model and checkpoint file is saved
+  * model/------Where model and checkpoint file is saved
 
-  * output-----Where generated images from each epoch is saved
+  * output/-----Where generated images from each epoch is saved
 
   * model.py---defines GAN model
 
