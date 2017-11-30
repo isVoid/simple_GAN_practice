@@ -1,10 +1,14 @@
-to run the model:
+# Generative Adversarial Network
+
+![Alt Text](https://github.com/isVoid/simple_GAN_practice/gan.gif)
+
+## To run the model:
 
     python model.py
 
-require: see requirements.txt
+## Require: see requirements.txt
 
-folder structure:
+## Folder structure:
 
 * GAN/
 
@@ -16,17 +20,31 @@ folder structure:
 
   * output/-----Where generated images from each epoch is saved
 
-  * model.py---defines GAN model
+  * model.py---defines GAN model and solver
 
   * ops.py-----defines ops used by GAN
 
   * utils.py---miscellaneous helper functions
 
+## Noteworthy details
 
-generator:
+* Generator:
 
-fc1024 bn lrelu -> fc128\*7\*7 bn lrelu -> conv_transpose 14\*14\*64 bn lrelu -> conv_transpose 28\*28\*1 tanh
+  * fc1024 bn lrelu -> fc128\*7\*7 bn lrelu -> conv_transpose 14\*14\*64 bn lrelu -> conv_transpose 28\*28\*1 tanh
 
-discriminator:
+* Discriminator:
 
-convf64 bn lrelu -> convf128 bn lrelu -> fc1024 bn lrelu -> fc1 sigmoid
+  * convf64 bn lrelu -> convf128 bn lrelu -> fc1024 bn lrelu -> fc1 sigmoid
+
+* Dataset:
+
+  * MNIST input normalized to [-1, 1]
+
+* Initialization:
+
+  * Xavier Initialization (Makes a huge difference)
+
+* Activation:
+  * leaky relu 0.02
+
+* Used batch_norm layer from tf.contrib.layers
