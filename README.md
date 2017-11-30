@@ -1,6 +1,6 @@
 # Generative Adversarial Network
 
-![Alt Text](https://github.com/isVoid/simple_GAN_practice/gan.gif)
+![Alt Text](https://github.com/isVoid/simple_GAN_practice/raw/master/gan.gif)
 
 ## To run the model:
 
