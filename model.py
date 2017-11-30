@@ -40,9 +40,9 @@ class GAN(object):
             conv1 = conv_lrelu(x, 1, 64, name = "conv1")
             conv2 = conv_bn_lrelu(conv1, 64, 128, name = "conv2")
             conv2_flat = tf.reshape(conv2, [self.mini_batch_size, -1])
-
             fc3 = dense_bn_lrelu(conv2_flat, 1024, name = "fc3")
-            prob = dense_sigmoid(fc3, 1, name = "prob")
+            fc4 = dense_bn_lrelu(fc3, 256, name = "fc4")
+            prob = dense_sigmoid(fc4, 1, name = "prob")
 
             return prob
 
@@ -81,7 +81,6 @@ class GAN(object):
 
             g_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits = DGz, labels = tf.ones_like(DGz)))
 
-
         if USE_TENSORBOARD: tf.summary.scalar("d_loss", d_loss)
         if USE_TENSORBOARD: tf.summary.scalar("g_loss", g_loss)
 
@@ -91,39 +90,52 @@ class GAN(object):
         d_optim = tf.train.AdamOptimizer(learning_rate = self.learning_rate,
             name = "d_optim").minimize(d_loss, var_list = d_vars)
 
-        g_optim = tf.train.AdamOptimizer(learning_rate = self.learning_rate,
+        g_optim = tf.train.AdamOptimizer(learning_rate = self.learning_rate * self.k,
             name = "g_optim").minimize(g_loss, var_list = g_vars)
 
         saver = tf.train.Saver()
         init = tf.global_variables_initializer()
-        with tf.Session(config = tf.ConfigProto(log_device_placement = True)) as sess:
+        with tf.Session() as sess:
             sess.run(init)
             if USE_TENSORBOARD:
                 summ = tf.summary.merge_all()
                 writer = tf.summary.FileWriter("log/")
                 writer.add_graph(sess.graph)
 
-            cur_k = 0
             seed = 0
             n=0
+            cur_k = 0
             X_batches = random_mini_batches(X_train, self.mini_batch_size, seed = 231)
+            # Sanity Check
+            sc = inv_norm_transform(X_batches[0])
+            img = gen_to_img(sc)
+            (Image.fromarray(img)).convert('L').save("output/sanity.png")
             for cur_epoch in range(self.epochs):
                 shuffle(X_batches)
                 for i in range(len(X_batches)):
                     noise = np.random.normal(size = (self.mini_batch_size, 100)).astype('float32')
                     mini_x = X_batches[i]
-                    if USE_TENSORBOARD:
-                        dl, s, _ = sess.run([d_loss, summ, d_optim], feed_dict = {X: mini_x, z: noise})
-                    else:
-                        dl, _ = sess.run([d_loss, d_optim], feed_dict = {X: mini_x, z: noise})
-                    gl, gen, _ = sess.run([g_loss, Gz, g_optim], feed_dict = {z: noise})
 
-                    if USE_TENSORBOARD:
-                        writer.add_summary(s, global_step = cur_epoch)
-                    print ("Current step: %d, d_loss: %f, g_loss: %f" % (n, dl, gl))
+                    # step disc:
+                    if cur_k < self.k:
+                        if USE_TENSORBOARD:
+                            dl, s, _ = sess.run([d_loss, summ, d_optim], feed_dict = {X: mini_x, z: noise})
+                        else:
+                            dl, _ = sess.run([d_loss, d_optim], feed_dict = {X: mini_x, z: noise})
+                        cur_k += 1
+                    else:
+                        gl, gen, _ = sess.run([g_loss, Gz, g_optim], feed_dict = {z: noise})
+                        cur_k = 0
+
+                        if USE_TENSORBOARD:
+                            writer.add_summary(s, global_step = cur_epoch)
+                        print ("Current step: %d, d_loss: %f, g_loss: %f" % (n, dl, gl))
+
                     n += 1
                 gen = inv_norm_transform(gen)
                 img = gen_to_img(gen)
+                print ("Mean value: ", img.mean())
+                print ("Var value: ", img.var())
                 (Image.fromarray(img)).convert('L').save("output/epoch_%s.png" % (cur_epoch))
                 saver.save(sess, "model/" + self._hp_string(cur_epoch))
             sess.close()
@@ -133,13 +145,13 @@ from tensorflow.examples.tutorials.mnist import input_data
 def main(args):
     mnist = input_data.read_data_sets("mnist/", one_hot=True)
     param = {
-        "learning_rate" : 1e-5,
+        "learning_rate" : 1e-4,
         "epochs" : 100,
         "mini_batch_size" : 64,
-        "k" : 1
+        "k" : 2
     }
     g = GAN(param)
-    mnist2d = mnist.test.images.reshape((-1, 28, 28, 1))
+    mnist2d = mnist.train.images.reshape((-1, 28, 28, 1))
     mnist2d = norm_transform(mnist2d)
     print ("mnist2d shape", mnist2d.shape)
     g.train(mnist2d)
